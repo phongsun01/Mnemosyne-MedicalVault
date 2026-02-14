@@ -25,6 +25,11 @@ echo "📦 Committing..."
 git commit -m "$COMMIT_MSG"
 
 echo "☁️ Pushing to GitHub..."
-git push
+git push -u origin main
+
+if [ $? -ne 0 ]; then
+    echo "⚠️ Git push failed. Trying to set upstream explicitly..."
+    git push --set-upstream origin $(git branch --show-current)
+fi
 
 echo "✅ Done!"
