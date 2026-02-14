@@ -1,0 +1,89 @@
+services:
+  # Database for Outline and Backend
+  postgres:
+    image: postgres:16-alpine
+    container_name: medvault-db
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_DB=${POSTGRES_DB}
+    restart: unless-stopped
+    networks:
+      - medvault-network
+
+  # Cache and Queue
+  redis:
+    image: redis:7-alpine
+    container_name: medvault-redis
+    restart: unless-stopped
+    networks:
+      - medvault-network
+
+  # Vector Database for semantic search
+  chromadb:
+    image: chromadb/chroma:latest
+    container_name: medvault-chroma
+    volumes:
+      - chroma_data:/chroma/chroma
+    ports:
+      - "8000:8000"
+    restart: unless-stopped
+    networks:
+      - medvault-network
+
+  # Outline Wiki (Simplified - using Postgres for storage in Phase 1)
+  outline:
+    image: outlinewiki/outline:latest
+    container_name: medvault-wiki
+    ports:
+      - "3000:3000"
+    depends_on:
+      - postgres
+      - redis
+    environment:
+      - DATABASE_URL=postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
+      - REDIS_URL=redis://redis:6379
+      - SECRET_KEY=${SECRET_KEY}
+      - UTILS_SECRET=${UTILS_SECRET}
+      - URL=${URL}
+      - PORT=${PORT}
+      - PGSSLMODE=disable
+      - FORCE_HTTPS=false
+      - HSTS_MAX_AGE=0
+      - EMAIL_AUTHENTICATION=true
+      - DEBUG=outline:auth
+      - LOG_LEVEL=debug
+      - SMTP_HOST=host.docker.internal
+      - SMTP_PORT=2525
+      - SMTP_FROM_EMAIL=admin@medvault.local
+      - SMTP_SECURE=false
+    restart: unless-stopped
+    networks:
+      - medvault-network
+
+  # Custom Backend (FastAPI)
+  api:
+    build: ./backend
+    container_name: medvault-api
+    volumes:
+      - ./backend:/app
+      - ${VAULT_RAW_PATH}:/vault/raw
+      - ${VAULT_MD_PATH}:/vault/md
+    environment:
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
+      - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
+      - CHROMA_URL=http://chromadb:8000
+      - DATABASE_URL=postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
+    restart: unless-stopped
+    networks:
+      - medvault-network
+
+networks:
+  medvault-network:
+    driver: bridge
+
+volumes:
+  postgres_data:
+  chroma_data:

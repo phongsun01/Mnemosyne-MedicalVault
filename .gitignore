@@ -1,0 +1,34 @@
+# OS files
+.DS_Store
+Thumbs.db
+.AppleDouble
+.LSOverride
+
+# Docker Data
+docker/postgres_data/
+docker/chroma_data/
+
+# MedicalVault Data (Local Path)
+/Users/xitrum/MedicalVault/
+
+# Secrets & Env
+.env
+docker/.env
+*.key
+*.pem
+
+# AI Agent & Workspace Data
+.agent/
+.gemini/
+.antigravity/
+
+# Logs & Temp
+*.log
+backend/__pycache__/
+.pytest_cache/
+smtp.log
+/tmp/smtp_host.log
+
+# Git sync tool (backup/windows)
+git_sync.bat
+git_sync.bat.backup
