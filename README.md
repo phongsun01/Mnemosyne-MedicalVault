@@ -52,6 +52,7 @@ graph TD
 | **Auto Wiki** | Tự động tạo trang so sánh thiết bị từ dữ liệu | ✅ Week 1 |
 
 ## 🛠️ Cài đặt & Sử dụng
+> 📘 **Xem hướng dẫn chi tiết:** [USER_MANUAL.md](docs/USER_MANUAL.md)
 
 ### 1. Yêu cầu
 - Docker & Docker Compose

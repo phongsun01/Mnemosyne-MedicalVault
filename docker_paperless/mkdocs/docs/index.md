@@ -5,6 +5,7 @@
 - [Chẩn đoán hình ảnh](chan_doan_hinh_anh/index.md) (50 models)
 - [Nội soi](noi_soi/index.md) (12 models)
 - [Kiểm soát nhiễm khuẩn](kiem_soat_nhiem_khuan/index.md) (8 models)
+- [**📂 Chưa phân loại (Inbox)**](uncategorized/index.md)
 
 ## 📊 Thống kê
 - **Tổng models**: 120

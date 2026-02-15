@@ -100,11 +100,84 @@ def generate_wiki():
     docs = get_documents()
     logging.info(f"Found {len(docs)} documents to sync.")
     
+    # Structure mapping (Tag -> Folder)
+    tag_map = {
+        "x-quang": "chan_doan_hinh_anh/x_quang",
+        "ct-scanner": "chan_doan_hinh_anh/ct_scanner",
+        "mri": "chan_doan_hinh_anh/mri",
+        "sieu-am": "chan_doan_hinh_anh/sieu_am",
+        "noi-soi-da-day": "noi_soi/noi_soi_da_day",
+        "tiet-trung": "kiem_soat_nhiem_khuan/may_tiet_trung"
+    }
+
+    # Prepare lists for indices
+    category_content = {k: [] for k in tag_map.values()}
+    category_content["uncategorized"] = []
+
     for doc in docs:
-        # MVP: Create simple pages for now
-        # Logic to be enhanced in "Week 1"
-        pass
+        metadata = generate_frontmatter(doc)
+        doc_id = metadata['device_id']
+        title = metadata['model']
         
+        # Determine Path
+        target_folder = "uncategorized"
+        for tag in metadata['tags']:
+            slug_tag = slugify(tag.get('name', '') if isinstance(tag, dict) else str(tag)) # Handle dict or ID
+            if slug_tag in tag_map:
+                target_folder = tag_map[slug_tag]
+                break
+        
+        # Create MD Content
+        file_name = f"{doc_id}_{slugify(title)}.md"
+        if target_folder == "uncategorized":
+             # Create uncategorized folder if not exists
+             (WIKI_ROOT / "uncategorized").mkdir(exist_ok=True)
+             
+        file_path = WIKI_ROOT / target_folder / file_name
+        
+        md_content = f"""---
+title: {title}
+---
+# {title}
+
+**ID:** {doc_id}
+**Updated:** {metadata['last_updated']}
+
+[Xem tài liệu gốc]({PAPERLESS_API_URL.replace('/api', '')}/documents/{doc_id}/preview)
+
+## 📄 Nội dung Preview
+*(Nội dung trích xuất từ AI sẽ hiển thị tại đây)*
+"""
+        try:
+            file_path.write_text(md_content, encoding='utf-8')
+            link = f"- [{title}]({file_name})"
+            category_content[target_folder].append(link)
+            logging.info(f"Generated {file_path}")
+        except Exception as e:
+            logging.error(f"Failed to write {file_path}: {e}")
+
+    # 3. Update Index Files
+    for folder, links in category_content.items():
+        if not links:
+            continue
+            
+        index_path = WIKI_ROOT / folder / "index.md"
+        if index_path.exists():
+            current_content = index_path.read_text(encoding='utf-8')
+            # Append list if not already present (Simple append for MVP)
+            new_list = "\n\n## 🆕 Thiết bị mới cập nhật\n" + "\n".join(links)
+            
+            # Reset file to clean state before appending to avoid duplication in loop runs? 
+            # For MVP, let's just rewrite the list section or append. 
+            # Safer: Rewrite the "Danh sách thiết bị" section.
+            
+            # Simple overwrite for Demo:
+            base_header = current_content.split("## 📋 Danh sách thiết bị")[0]
+            new_content = f"{base_header}## 📋 Danh sách thiết bị\n" + "\n".join(links) + "\n\n## 📊 Thống kê"
+            
+            index_path.write_text(new_content, encoding='utf-8')
+            logging.info(f"Updated index for {folder}")
+    
     logging.info("Wiki Generation Complete.")
 
 if __name__ == "__main__":
