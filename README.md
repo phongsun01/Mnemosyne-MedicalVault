@@ -61,7 +61,7 @@ graph TD
 ### 2. Cài đặt nhanh
 ```bash
 # 1. Clone dự án
-git clone https://github.com/vudovn/medicalvault.git
+git clone https://github.com/phongsun01/Mnemosyne-MedicalVault.git
 cd medicalvault
 
 # 2. Cấu hình .env

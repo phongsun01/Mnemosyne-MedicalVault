@@ -9,8 +9,7 @@ theme:
   name: material
   language: vi
   features:
-    - navigation.tabs
-    - navigation.sections
+    - navigation.indexes
     - navigation.expand
     - search.suggest
     - search.highlight
@@ -35,15 +34,3 @@ plugins:
   - tags:
       tags_file: tags.md
 
-nav:
-  - Trang chủ: index.md
-  - Chẩn đoán hình ảnh:
-      - chan_doan_hinh_anh/index.md
-      - X-quang: chan_doan_hinh_anh/x_quang/index.md
-      - CT Scanner: chan_doan_hinh_anh/ct_scanner/index.md
-      - MRI: chan_doan_hinh_anh/mri/index.md
-  - Nội soi:
-      - noi_soi/index.md
-      - Nội soi dạ dày: noi_soi/noi_soi_da_day/index.md
-  - Kiểm soát nhiễm khuẩn: kiem_soat_nhiem_khuan/index.md
-  - Tags & Filter: tags.md

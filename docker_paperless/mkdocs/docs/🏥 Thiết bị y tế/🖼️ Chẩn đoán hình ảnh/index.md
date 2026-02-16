@@ -1,4 +1,4 @@
-# X-Quang
+# 🖼️ Chẩn đoán hình ảnh
 
 ## 📋 Danh sách thiết bị
 Đang cập nhật dữ liệu từ Paperless...

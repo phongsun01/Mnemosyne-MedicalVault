@@ -1,4 +1,4 @@
-# CT Scanner
+# 🔥 Máy tiệt trùng
 
 ## 📋 Danh sách thiết bị
 Đang cập nhật dữ liệu từ Paperless...

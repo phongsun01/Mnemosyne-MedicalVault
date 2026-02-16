@@ -1,4 +1,4 @@
-# Nội soi
+# 🛡️ Kiểm soát nhiễm khuẩn
 
 ## 📋 Danh sách thiết bị
 Đang cập nhật dữ liệu từ Paperless...

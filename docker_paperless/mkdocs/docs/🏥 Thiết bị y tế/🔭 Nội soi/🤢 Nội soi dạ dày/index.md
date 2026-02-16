@@ -1,4 +1,4 @@
-# Máy tiệt trùng
+# 🤢 Nội soi dạ dày
 
 ## 📋 Danh sách thiết bị
 Đang cập nhật dữ liệu từ Paperless...

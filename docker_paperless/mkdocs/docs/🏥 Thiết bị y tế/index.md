@@ -1,4 +1,4 @@
-# Nội soi dạ dày
+# 🏥 Thiết bị y tế
 
 ## 📋 Danh sách thiết bị
 Đang cập nhật dữ liệu từ Paperless...

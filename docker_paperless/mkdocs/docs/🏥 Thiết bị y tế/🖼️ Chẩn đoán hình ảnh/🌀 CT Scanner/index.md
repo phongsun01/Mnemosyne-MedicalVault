@@ -1,4 +1,4 @@
-# Kiểm soát nhiễm khuẩn
+# 🌀 CT Scanner
 
 ## 📋 Danh sách thiết bị
 Đang cập nhật dữ liệu từ Paperless...

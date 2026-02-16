@@ -6,7 +6,7 @@ services:
     volumes:
       - redisdata:/data
     networks:
-      - paperless-net
+      - backend
 
   db:
     image: docker.io/library/postgres:16
@@ -17,15 +17,22 @@ services:
       POSTGRES_DB: paperless
       POSTGRES_USER: paperless
       POSTGRES_PASSWORD: paperless
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U paperless" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
     networks:
-      - paperless-net
+      - backend
 
   webserver:
     image: ghcr.io/paperless-ngx/paperless-ngx:latest
     restart: unless-stopped
     depends_on:
-      - db
-      - broker
+      db:
+        condition: service_healthy
+      broker:
+        condition: service_started
     ports:
       - "8000:8000"
     volumes:
@@ -36,18 +43,40 @@ services:
     environment:
       PAPERLESS_REDIS: redis://broker:6379
       PAPERLESS_DBHOST: db
-      PAPERLESS_OCR_LANGUAGE: eng
+      PAPERLESS_OCR_LANGUAGE: eng+vie
+      PAPERLESS_OCR_LANGUAGES: vie
+      PAPERLESS_OCR_MODE: redo
       PAPERLESS_ADMIN_USER: admin
       PAPERLESS_ADMIN_PASSWORD: admin
       PAPERLESS_URL: http://127.0.0.1:8000
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8000" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 2G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
     networks:
-      - paperless-net
+      - backend
+      - frontend
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
 
   paperless-gpt:
     image: ghcr.io/icereed/paperless-gpt:latest
     restart: unless-stopped
     depends_on:
-      - webserver
+      webserver:
+        condition: service_healthy
     environment:
       PAPERLESS_BASE_URL: http://webserver:8000
       PAPERLESS_API_TOKEN: ${PAPERLESS_API_TOKEN}
@@ -61,13 +90,14 @@ services:
     volumes:
       - ./consume:/consume
     networks:
-      - paperless-net
+      - frontend
 
   openclaw:
     build: ./openclaw
     restart: unless-stopped
     depends_on:
-      - webserver
+      webserver:
+        condition: service_healthy
     environment:
       TELEGRAM_BOT_TOKEN: ${TELEGRAM_BOT_TOKEN}
       PAPERLESS_API_URL: http://webserver:8000/api
@@ -75,7 +105,7 @@ services:
     volumes:
       - ./openclaw_data:/data
     networks:
-      - paperless-net
+      - frontend
 
   mkdocs:
     build: ./mkdocs
@@ -89,10 +119,13 @@ services:
       PAPERLESS_API_TOKEN: ${PAPERLESS_API_TOKEN}
     command: mkdocs serve -a 0.0.0.0:8000
     networks:
-      - paperless-net
+      - frontend
 
 networks:
-  paperless-net:
+  backend:
+    driver: bridge
+    internal: true
+  frontend:
     driver: bridge
 
 volumes:
